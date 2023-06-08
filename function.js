@@ -6,6 +6,20 @@ class DatePicker {
 		this.prevMonthLastDate = null;
 		this.calWeekDays = [ "So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 		this.calMonthName = [ "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+		this.elements = {
+			calendar: {
+				body: document.querySelector(".calendar .calendar-body"), 
+				labels: {
+					month: document.querySelector(".calendar .calendar-month-label"),
+					year: document.querySelector(".calendar .calendar-year-label"),
+				},
+				dateNumber: document.querySelectorAll(".calendar .date-number"),
+				buttons: {
+					next: document.querySelector('.calendar .calendar-next a'),
+					prev: document.querySelector('.calendar .calendar-prev a')
+				}
+			}
+		}
 	};
 
 		daysInMonth = (month, year) => {
@@ -56,15 +70,11 @@ class DatePicker {
 		};
 
 		displayYear = () => {
-			let yearLabel = document.querySelector(".calendar .calendar-year-label");
-			yearLabel.innerHTML = this.calendar.getFullYear();
+			this.elements.calendar.labels.year.innerHTML = this.calendar.getFullYear();
 		};
 
 		displayMonth = () => {
-			let monthLabel = document.querySelector(
-				".calendar .calendar-month-label"
-			);
-			monthLabel.innerHTML = this.calMonthName[this.calendar.getMonth()];
+			this.elements.calendar.labels.month.innerHTML = this.calMonthName[this.calendar.getMonth()];
 		};
 
 		selectDate = (e) => {
@@ -78,14 +88,12 @@ class DatePicker {
 
 		plotDayNames = () => {
 			for (let i = 0; i < this.calWeekDays.length; i++) {
-				document.querySelector(
-					".calendar .calendar-body"
-				).innerHTML += `<div>${this.calWeekDays[i]}</div>`;
+				this.elements.calendar.body.innerHTML += `<div>${this.calWeekDays[i]}</div>`
 			}
 		};
 
 		plotDates = () => {
-			document.querySelector(".calendar .calendar-body").innerHTML = "";
+			this.elements.calendar.body.innerHTML = "";
 			this.plotDayNames();
 			this.displayMonth();
 			this.displayYear();
@@ -102,42 +110,27 @@ class DatePicker {
 			for (let i = 1; i < calendarDays; i++) {
 				if (i < this.firstDayNumber()) {
 					prevDateCount += 1;
-					document.querySelector(
-						".calendar .calendar-body"
-					).innerHTML += `<div class="prev-dates"></div>`;
+					this.elements.calendar.body.innerHTML += `<div class="prev-dates"></div>`;
 					prevMonthDatesArray.push(this.prevMonthLastDate--);
 				} else {
-					document.querySelector(
-						".calendar .calendar-body"
-					).innerHTML += `<div class="number-item" data-num=${count}><a class="dateNumber" href="#">${count++}</a></div>`;
+					this.elements.calendar.body.innerHTML += `<div class="number-item" data-num=${count}><a class="date-number" href="#">${count++}</a></div>`;
 				}
 			}
 			//remaining dates after month dates
 			for (let j = 0; j < prevDateCount + 1; j++) {
-				document.querySelector(
-					".calendar .calendar-body"
-				).innerHTML += `<div class="number-item" data-num=${count}><a class="dateNumber" href="#">${count++}</a></div>`;
+				this.elements.calendar.body.innerHTML += `<div class="number-item" data-num=${count}><a class="date-number" href="#">${count++}</a></div>`;
 			}
 			this.highlightToday();
 			this.plotPrevMonthDates(prevMonthDatesArray);
 		};
 		
 		attachEvents = () => {
-			let prevBtn = document.querySelector(".calendar .calendar-prev a");
-			let nextBtn = document.querySelector(".calendar .calendar-next a");
-			let dateNumber = document.querySelectorAll(".calendar .dateNumber");
-			prevBtn.addEventListener(
-				"click",
-				this.navigateToPreviousMonth
-			);
-			nextBtn.addEventListener("click", this.navigateToNextMonth);
-			for (var i = 0; i < dateNumber.length; i++) {
-					dateNumber[i].addEventListener(
-						"click",
-						this.selectDate,
-						false
-					);
-			}
+		  this.elements.calendar.dateNumber = document.querySelectorAll(".calendar .date-number");
+			this.elements.calendar.buttons.prev.addEventListener('click', this.navigateToPreviousMonth);
+			this.elements.calendar.buttons.next.addEventListener('click', this.navigateToNextMonth);
+			this.elements.calendar.dateNumber.forEach((item) => {
+				item.addEventListener('click', (event) => this.selectDate(event), false)
+			})
 		};
 
 		highlightToday = () => {
@@ -145,13 +138,13 @@ class DatePicker {
 			let changedMonth = this.calendar.getMonth() + 1;
 			let currentYear = this.localDate.getFullYear();
 			let changedYear = this.calendar.getFullYear();
+			let numberItems = document.querySelectorAll('.number-item');
 			if (
 				currentYear === changedYear &&
 				currentMonth === changedMonth &&
-				document.querySelectorAll(".number-item")
+				numberItems
 			) {
-				document
-					.querySelectorAll(".number-item")
+					numberItems
 					[this.calendar.getDate() - 1].classList.add("calendar-today");
 			}
 		};
